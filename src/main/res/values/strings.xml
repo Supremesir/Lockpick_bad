@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">LockPick</string>
     <string name="send_message">开门</string>
+    <string name="network_offline">未连接到服务器</string>
+    <string name="network_online">已连接到服务器</string>
+    <string name="description">Description</string>
 </resources>

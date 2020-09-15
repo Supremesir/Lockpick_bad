@@ -69,11 +69,15 @@ public class MainActivity extends AppCompatActivity {
             client.setCallback(new MqttCallbackExtended() {
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
+                    binding.networkStatusText.setText(R.string.network_online);
+                    binding.networkStatusLogo.setImageResource(R.drawable.online);
                     Toast.makeText(getApplication(),"连接成功", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void connectionLost(Throwable cause) {
+                    binding.networkStatusText.setText(R.string.network_offline);
+                    binding.networkStatusLogo.setImageResource(R.drawable.offline);
                     Toast.makeText(getApplication(),"连接失败", Toast.LENGTH_SHORT).show();
                 }
 
