@@ -23,14 +23,16 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
+/**
+ * @author fang
+ */
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
     final String TAG = "MQTT";
-
     final String CLIENT_ID = "LockPick_App";
-
     final String SERVER_URL = "tcp://39.96.177.143:1883";
     final String SUBSCRIPTION_TOPIC = "Instruction";
     final String PUBLISH_MESSAGE = "open_sesame";
@@ -67,27 +69,23 @@ public class MainActivity extends AppCompatActivity {
             client.setCallback(new MqttCallbackExtended() {
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
-                    try {
-                        Toast.makeText(getApplication(),"连接成功", Toast.LENGTH_LONG).show();
-                        //连接成功，需要上传客户端所有的订阅关系
-                        client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
+                    Toast.makeText(getApplication(),"连接成功", Toast.LENGTH_SHORT).show();
+//                        //连接成功，需要上传客户端所有的订阅关系
+//                        client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
                 }
 
                 @Override
                 public void connectionLost(Throwable cause) {
-                    Toast.makeText(getApplication(),"连接失败", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplication(),"连接失败", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception { ;
+                public void messageArrived(String topic, MqttMessage message) {
+                    Toast.makeText(getApplication(),"指令发送成功", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void deliveryComplete(IMqttDeliveryToken token) {
-
 
                 }
             });
@@ -104,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
         public void onSuccess(IMqttToken arg0) {
             Log.i(TAG, "连接成功 ");
             try {
-                client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);//订阅主题，参数：主题、服务质量
+                //订阅主题，参数：主题、服务质量
+                client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
             } catch (MqttException e) {
                 e.printStackTrace();
             }
