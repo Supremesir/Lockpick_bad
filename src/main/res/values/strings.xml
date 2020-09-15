@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">LockPick</string>
+    <string name="send_message">开门</string>
 </resources>
