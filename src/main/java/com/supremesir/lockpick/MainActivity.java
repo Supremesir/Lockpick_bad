@@ -70,8 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void connectComplete(boolean reconnect, String serverURI) {
                     Toast.makeText(getApplication(),"连接成功", Toast.LENGTH_SHORT).show();
-//                        //连接成功，需要上传客户端所有的订阅关系
-//                        client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
                 }
 
                 @Override
