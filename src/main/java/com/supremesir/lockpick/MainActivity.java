@@ -1,6 +1,12 @@
 package com.supremesir.lockpick;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -29,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
     final int SERVICE_QOS = 0;
     MqttAndroidClient client;
     private ActivityMainBinding binding;
+    private boolean networkStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +43,32 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         initClient();
+
+
+        ConnectivityManager connectivityManager=(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        connectivityManager.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback(){
+            @Override
+            public void onAvailable(Network network) {
+                networkStatus = true;
+//                connectServer();
+                Log.i(TAG, "网络恢复"+ networkStatus);
+             }
+
+             @Override
+             public void onLost(Network network) {
+                 networkStatus = false;
+//                 connectServer();
+                 Log.i(TAG, "无网络" + networkStatus);
+             }
+        });
+
         binding.sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 publishMsg();
             }
         });
+
     }
 
     @Override
@@ -67,14 +94,17 @@ public class MainActivity extends AppCompatActivity {
                 }
                 binding.networkStatusText.setText(R.string.network_online);
                 binding.networkStatusLogo.setImageResource(R.drawable.online);
-                Toast.makeText(getApplication(), "连接成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplication(), "连接成功", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "连接成功");
             }
 
             @Override
             public void connectionLost(Throwable cause) {
                 binding.networkStatusText.setText(R.string.network_offline);
                 binding.networkStatusLogo.setImageResource(R.drawable.offline);
-                Toast.makeText(getApplication(), "连接失败", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplication(), "连接失败", Toast.LENGTH_SHORT).show();
+                Log.i(TAG, "连接丢失");
+                connectServer();
             }
 
             @Override
@@ -89,26 +119,6 @@ public class MainActivity extends AppCompatActivity {
         });
         connectServer();
     }
-
-//    private IMqttActionListener iMqttActionListener = new IMqttActionListener() {
-//        @Override
-//        public void onSuccess(IMqttToken arg0) {
-//            Log.i(TAG, "连接成功 ");
-//            try {
-//                //订阅主题，参数：主题、服务质量
-//                client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
-//            } catch (MqttException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        @Override
-//        public void onFailure(IMqttToken arg0, Throwable arg1) {
-//            arg1.printStackTrace();
-//            Log.i(TAG, "连接失败 ");
-//        }
-//    };
-
 
     private MqttConnectOptions createConnectOptions() {
         MqttConnectOptions connOpts = new MqttConnectOptions();
@@ -144,4 +154,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
 }
+
+
