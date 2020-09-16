@@ -1,7 +1,6 @@
 package com.supremesir.lockpick;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -10,9 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.supremesir.lockpick.databinding.ActivityMainBinding;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -24,8 +21,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
-
     final String TAG = "MQTT";
     final String CLIENT_ID = "LockPick_App";
     final String SERVER_URL = "tcp://39.96.177.143:1883";
@@ -33,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     final String PUBLISH_MESSAGE = "open_sesame";
     final int SERVICE_QOS = 0;
     MqttAndroidClient client;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
         client.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean reconnect, String serverURI) {
+                try {
+                    client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
                 binding.networkStatusText.setText(R.string.network_online);
                 binding.networkStatusLogo.setImageResource(R.drawable.online);
                 Toast.makeText(getApplication(), "连接成功", Toast.LENGTH_SHORT).show();
@@ -86,32 +87,27 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        MqttConnectOptions connOpts = createConnectOptions();
-        try {
-            client.connect(connOpts, null, iMqttActionListener);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+        connectServer();
     }
 
-    private IMqttActionListener iMqttActionListener = new IMqttActionListener() {
-        @Override
-        public void onSuccess(IMqttToken arg0) {
-            Log.i(TAG, "连接成功 ");
-            try {
-                //订阅主题，参数：主题、服务质量
-                client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
-            } catch (MqttException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-        public void onFailure(IMqttToken arg0, Throwable arg1) {
-            arg1.printStackTrace();
-            Log.i(TAG, "连接失败 ");
-        }
-    };
+//    private IMqttActionListener iMqttActionListener = new IMqttActionListener() {
+//        @Override
+//        public void onSuccess(IMqttToken arg0) {
+//            Log.i(TAG, "连接成功 ");
+//            try {
+//                //订阅主题，参数：主题、服务质量
+//                client.subscribe(SUBSCRIPTION_TOPIC, SERVICE_QOS);
+//            } catch (MqttException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        @Override
+//        public void onFailure(IMqttToken arg0, Throwable arg1) {
+//            arg1.printStackTrace();
+//            Log.i(TAG, "连接失败 ");
+//        }
+//    };
 
 
     private MqttConnectOptions createConnectOptions() {
@@ -140,4 +136,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void connectServer() {
+        MqttConnectOptions connOpts = createConnectOptions();
+        try {
+            client.connect(connOpts);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 }
